@@ -42,17 +42,17 @@ const Layout = ({ children }) => {
           )}
           {user && user.user.role === "seller" && (
             <>
-              <Link to="/seller/dashboard" className="mr-4">
+              <Link to="/dashboard" className="mr-4">
                 Dashboard
               </Link>
 
               <Link to="/seller/addProduct" className="mr-4">
                 Upload Product
               </Link>
-              <Link to="/seller/products" className="mr-4">
+              <Link to="/products" className="mr-4">
                 Order
               </Link>
-              <Link to="/seller/profile" className="mr-4">
+              <Link to="/profile" className="mr-4">
                 Profile : {user.user.name}
               </Link>
             </>

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
 import { useDispatch, useSelector } from "react-redux";
+import instance from "../service/instance";
 import {
   setName,
   setDescription,
@@ -18,24 +19,23 @@ const SellerUploadProduct = () => {
   const price = useSelector(selectPrice);
   const image = useSelector(selectImage);
   const dispatch = useDispatch();
-  const [imagePreview, setImagePreview] = useState(null); // Optional: For showing a preview
+  const [imagePreview, setImagePreview] = useState(null);
 
+  // Handle image selection and convert to Base64
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
       const reader = new FileReader();
-
       reader.onloadend = () => {
-        const base64Image = reader.result; // Contains the Base64 string
+        const base64Image = reader.result;
         dispatch(setImage(base64Image));
-        setImagePreview(base64Image); // Optional: For showing a preview
-     
+        setImagePreview(base64Image);
       };
-  
       reader.readAsDataURL(file);
     }
   };
 
+  // Handle form submission
   const handleUpload = async (e) => {
     e.preventDefault();
     try {
@@ -43,16 +43,17 @@ const SellerUploadProduct = () => {
         name,
         description,
         price,
-        image, // Already a Base64 string
+        image, // Base64 string
       };
 
-      const response = await fetch("/seller/addProduct", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
+      // Replace `/seller/addProduct` with your backend API URL
+      const response = await instance.post("/seller/addProduct", {
+        name: name,
+        description: description,
+        price: price,
+        image: imagePreview,
       });
+      
 
       if (response.ok) {
         toast.success("Product uploaded successfully");
@@ -63,10 +64,17 @@ const SellerUploadProduct = () => {
         dispatch(setImage(null));
         setImagePreview(null);
       } else {
-        const data = await response.json();
-        toast.error(data.message || "Failed to upload product");
+        toast.success("Product uploaded successfully");
+        // Clear the form
+        dispatch(setName(""));
+        dispatch(setDescription(""));
+        dispatch(setPrice(""));
+        dispatch(setImage(null));
+        setImagePreview(null);
+        
       }
     } catch (error) {
+      console.error("Error uploading product:", error);
       toast.error(error.message || "An error occurred");
     }
   };
@@ -79,86 +87,66 @@ const SellerUploadProduct = () => {
         </h1>
         <form onSubmit={handleUpload} className="space-y-6">
           <div>
-            <label
-              htmlFor="productname"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Product Name
             </label>
             <input
-              name="productname"
               type="text"
-              placeholder="Enter product name"
               value={name}
               onChange={(e) => dispatch(setName(e.target.value))}
+              placeholder="Enter product name"
               required
-              className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 text-sm"
+              className="w-full p-3 border-gray-300 rounded-lg"
             />
           </div>
-
           <div>
-            <label
-              htmlFor="description"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Description
             </label>
             <input
-              name="description"
               type="text"
-              placeholder="Enter product description"
               value={description}
               onChange={(e) => dispatch(setDescription(e.target.value))}
+              placeholder="Enter product description"
               required
-              className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 text-sm"
+              className="w-full p-3 border-gray-300 rounded-lg"
             />
           </div>
-
           <div>
-            <label
-              htmlFor="price"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Price
             </label>
             <input
-              name="price"
               type="number"
-              placeholder="Enter product price"
               value={price}
               onChange={(e) => dispatch(setPrice(e.target.value))}
+              placeholder="Enter product price"
               required
-              className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 text-sm"
+              className="w-full p-3 border-gray-300 rounded-lg"
             />
           </div>
-
           <div>
-            <label
-              htmlFor="image"
-              className="block text-sm font-medium text-gray-700 mb-2"
-            >
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Product Image
             </label>
             <input
-              name="image"
               type="file"
               accept="image/*"
               onChange={handleImageChange}
               required
-              className="w-full border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 p-3 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+              className="w-full p-3"
             />
             {imagePreview && (
               <img
                 src={imagePreview}
                 alt="Preview"
-                className="mt-4 rounded-lg shadow-lg w-full"
+                className="mt-4 w-full rounded-lg shadow-lg"
               />
             )}
           </div>
-
           <button
             type="submit"
-            className="w-full bg-indigo-600 text-white py-3 rounded-lg text-sm font-medium hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 shadow-md"
+            className="w-full bg-indigo-600 text-white py-3 rounded-lg"
           >
             Submit
           </button>

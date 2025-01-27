@@ -40,12 +40,12 @@ const routes = [
         element: <div>cart</div>,
       },
       {
-        path: "seller/profile",
+        path: "/profile",
         element: <Sellerprofile />,
       },
       {
-        path: "seller/addproduct",
-        element: <SellerAddproduct/>,
+        path: "/seller/addProduct",
+        element: <SellerAddproduct />,
       },
     ],
     hydrateFallbackElement: <p>Loading... </p>,
