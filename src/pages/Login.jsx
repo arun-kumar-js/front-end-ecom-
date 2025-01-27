@@ -12,13 +12,13 @@ const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleLogin = async (e) => {
     e.preventDefault();
-    console.log(email, password);
+   
     try {
       const response = await instance.post('/login', {
         email,
         password,
       });
-      if (response.status === 200) { 
+      if (response.status === 200) {
         toast.success('Logged in successfully');
         // clear the form
         dispatch(setEmail(''));
@@ -27,14 +27,16 @@ const navigate = useNavigate();
         localStorage.setItem('token', response.data.token);
          
         navigate('/');
-        
+        window.location.reload();
 
       }
+      else {
+        toast.error(response.data.message);
+      }
     } catch (error) {
-      toast.error(error.reponse.data.message);
+      toast.error(error.response.data.message);
     }
-   }
-
+  };
 
 
   return (
@@ -62,6 +64,6 @@ const navigate = useNavigate();
       </form>
     </div>
   );
-}
+};
 
 export default login;
