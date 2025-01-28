@@ -1,77 +1,109 @@
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom"; // Ensure correct import
 import { selectUser } from "../Redux/Features/auth/userSlice";
-import { useEffect } from "react";
 
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const { user } = useSelector(selectUser);
 
-  // Redirect to login page if user is not logged in
- 
-
   return (
     <div className="min-h-screen flex flex-col">
-      <nav className="bg-indigo-500 text-white p-4 flex justify-between">
-        <Link to="/" className="mr-4">
-          Home
-        </Link>
-        <div>
-          {!user && (
-            <Link to="/register" className="mr-4">
-              Register
+     
+      <nav className="bg-orange-300 text-white p-4">
+        <div className="container mx-auto flex justify-between items-center">
+          <div className="flex items-center space-x-4">
+            <h1 className="text-2xl font-bold text-indigo-500">Eekart</h1>
+            <Link to="/" className="text-lg font-bold hover:underline text-red-500">
+              Home
             </Link>
-          )}
-          {!user && (
-            <Link to="/login" className="mr-4">
-              Login
-            </Link>
-          )}
-          {user && user.user.role === "user" && (
-            <>
-              <Link to="/me" className="mr-4">
-                Profile : {user.user.name}
-              </Link>
-              <Link to="/cart" className="mr-4">
-                Cart
-              </Link>
-              <Link to="/candidate/applications" className="mr-4">
-                Your Orders
-              </Link>
-            </>
-          )}
-          {user && user.user.role === "seller" && (
-            <>
-              <Link to="/dashboard" className="mr-4">
-                Dashboard
-              </Link>
+          </div>
 
-              <Link to="/seller/addProduct" className="mr-4">
-                Upload Product
-              </Link>
-              <Link to="/products" className="mr-4">
-                Order
-              </Link>
-              <Link to="/profile" className="mr-4">
-                Profile : {user.user.name}
-              </Link>
-            </>
-          )}
-        </div>
+          {/* Middle Section: Dynamic Links */}
+          <div className="flex items-center space-x-4">
+            {!user && (
+              <>
+                <Link
+                  to="/register"
+                  className="hover:underline bg-red-500 px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600 transition duration-200"
+                >
+                  Register
+                </Link>
+                <Link
+                  to="/login"
+                  className="hover:underline bg-red-500 px-4 py-2 rounded-md text-sm font-medium hover:bg-yellow-300 transition duration-200"
+                >
+                  Login
+                </Link>
+              </>
+            )}
+            {user && user.user.role === "user" && (
+              <>
+                <Link
+                  to="/cart"
+                  className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"
+                >
+                  🛒 Cart
+                </Link>
+                <Link
+                  to="/order"
+                  className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"
+                >
+                  Your Orders
+                </Link>
+                <Link
+                  to="/profile"
+                  className="hover:underline  bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"
+                >
+                  ☃︎{user.user.name}
+                </Link>
+              </>
+            )}
+            {user && user.user.role === "seller" && (
+              <>
+                <Link
+                  to="/dashboard"
+                  className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"
+                >
+                  Dashboard
+                </Link>
+                <Link
+                  to="/seller/addProduct"
+                  className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"
+                >
+                  Upload Product
+                </Link>
+                <Link
+                  to="/products"
+                  className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400transition duration-200"
+                >
+                  Orders
+                </Link>
+                <Link
+                  to="/profile"
+                  className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"
+                >
+                  {user.user.name}
+                </Link>
+              </>
+            )}
+          </div>
 
-        <div>
-          {user && (
-            <button
-              className="bg-red-500 px-3 py-1 rounded"
-              onClick={() => navigate("/logout", { replace: true })}
-            >
-              Logout
-            </button>
-          )}
+          {/* Right Section: Logout Button */}
+          <div>
+            {user && (
+              <button
+                className="bg-red-500 px-4 py-2 rounded-md text-sm font-medium hover:bg-red-600 transition duration-200"
+                onClick={() => navigate("/logout", { replace: true })}
+              >
+                Logout
+              </button>
+            )}
+          </div>
         </div>
       </nav>
 
-      <main className="flex-grow">{children}</main>
+      {/* Main Content */}
+      <main className="flex-grow container mx-auto p-4">{children}</main>
     </div>
   );
 };

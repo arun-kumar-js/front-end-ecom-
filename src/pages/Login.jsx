@@ -43,7 +43,6 @@ const navigate = useNavigate();
     <div className="max-w-xs mx-auto mt-10 bg-white p-5 rounded-md shadow-md">
       <h2 className="text-xl mb-4">Login</h2>
       <form className="space-y-3 flex flex-col" onSubmit={handleLogin}>
-    
         <input
           name="email"
           type="email"
@@ -60,8 +59,13 @@ const navigate = useNavigate();
           value={password}
           onChange={(e) => dispatch(setPassword(e.target.value))}
         />
-        <button className="bg-blue-500 text-white p-2 rounded-md">Login</button>
+        <button className="bg-blue-500 text-white p-2  rounded-md">
+          Login
+        </button>
       </form>
+      <button className="bg-blue-500 text-white p-2 px-20 mt-5 rounded-md">
+        <a href="/forgotPassword">ForgotPassword</a>
+      </button>
     </div>
   );
 };
