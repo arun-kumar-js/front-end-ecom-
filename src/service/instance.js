@@ -3,7 +3,7 @@ import e from "cors";
 const baseURL = "http://localhost:3000/auth";
 const instance = axios.create({
     baseURL: baseURL,
-    timeout: 20000,
+    timeout: 30000,
     headers: {
         "Content-Type": "application/json",
     },

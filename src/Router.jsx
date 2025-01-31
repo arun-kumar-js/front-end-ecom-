@@ -12,6 +12,8 @@ import SellerAddproduct from "./pages/sellerAddproduct"
 import ForgotPassword from "./pages/forgotPassword";
 import Changepassword from "./pages/changePassword";
 import ProductDetails from "./components/ProductDetails";
+import Order from "./components/order";
+import DashBoard from "./components/DashBoard";
 const routes = [
   {
     path: "/",
@@ -60,8 +62,16 @@ const routes = [
         element: <Sellerprofile />,
       },
       {
+        path: "/getallorders",
+        element: <Order />,
+      },
+      {
         path: "/seller/addProduct",
         element: <SellerAddproduct />,
+      },
+      {
+        path: "/dashboard",
+        element: <DashBoard />,
       },
     ],
     hydrateFallbackElement: <p>Loading... </p>,

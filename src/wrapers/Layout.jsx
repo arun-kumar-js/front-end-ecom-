@@ -9,12 +9,14 @@ const Layout = ({ children }) => {
 
   return (
     <div className="min-h-screen flex flex-col">
-     
       <nav className="bg-orange-300 text-white p-4">
         <div className="container mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <h1 className="text-2xl font-bold text-indigo-500">Eekart</h1>
-            <Link to="/" className="text-lg font-bold hover:underline text-red-500">
+            <Link
+              to="/"
+              className="text-lg font-bold hover:underline text-red-500"
+            >
               Home
             </Link>
           </div>
@@ -46,7 +48,7 @@ const Layout = ({ children }) => {
                   🛒 Cart
                 </Link>
                 <Link
-                  to="/order"
+                  to="/getallorders"
                   className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"
                 >
                   Your Orders
@@ -73,12 +75,7 @@ const Layout = ({ children }) => {
                 >
                   Upload Product
                 </Link>
-                <Link
-                  to="/products"
-                  className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400transition duration-200"
-                >
-                  Orders
-                </Link>
+
                 <Link
                   to="/profile"
                   className="hover:underline bg-stone-400 px-4 py-2 rounded-md text-sm font-medium hover:bg-blue-400 transition duration-200"

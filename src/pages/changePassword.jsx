@@ -13,7 +13,7 @@ const ChangePassword = () => {
     try {
       const response = await instance.post("/update", {
         code: resetToken,
-        password: newPassword,
+        password: password,
       });
       console.log(response.data.message);
     } catch (error) {
