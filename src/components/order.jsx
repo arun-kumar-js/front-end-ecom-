@@ -16,7 +16,7 @@ const Order = () => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
-
+  const [paymentVerified, setPaymentVerified] = useState({}); // Track payment verification status for each order
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -51,8 +51,8 @@ const Order = () => {
 
   const handlePaymentSubmit = async () => {
     try {
-       const { data } = await axios.post(
-    "http://localhost:3000/auth/createrazorpayorder",
+      const { data } = await axios.post(
+        "http://localhost:3000/auth/createrazorpayorder",
         {
           amount: 56378,
         },
@@ -88,12 +88,26 @@ const Order = () => {
             );
             console.log("Payment Verified:", verifyRes.data);
             toast.success("Payment Successful!");
+
+            // Update order status to 'Confirmed' and mark the payment as verified
+            setPaymentVerified((prev) => ({
+              ...prev,
+              [selectedOrder._id]: true,
+            }));
+
+            // Update order status to 'Confirmed' locally
+            setOrders((prevOrders) =>
+              prevOrders.map((order) =>
+                order._id === selectedOrder._id
+                  ? { ...order, status: "Confirmed" }
+                  : order
+              )
+            );
           } catch (error) {
             console.error("Payment verification failed:", error);
             alert("Payment verification failed! Please try again.");
           }
         },
-       
         theme: {
           color: "#3399cc",
         },
@@ -118,7 +132,12 @@ const Order = () => {
   return (
     <div className="p-6">
       <h1 className="text-2xl font-bold mb-6">My Orders</h1>
-      {orders.length === 0 ? (
+
+      {loading ? (
+        <p>Loading orders...</p>
+      ) : error ? (
+        <p className="text-red-500">{error}</p>
+      ) : orders.length === 0 ? (
         <p className="text-lg text-gray-600">No orders found.</p>
       ) : (
         orders.map((order) => (
@@ -136,17 +155,56 @@ const Order = () => {
                     ? "bg-blue-500"
                     : order.status === "Delivered"
                     ? "bg-green-500"
+                    : order.status === "Confirmed"
+                    ? "bg-green-500"
                     : "bg-red-500"
                 }`}
               >
                 {order.status}
               </span>
             </div>
-            <p className="text-lg mb-4">
-              Total Price: <strong>Rs: {order.totalPrice}</strong>
-            </p>
 
-            {order.status === "Pending" && (
+            {/* Product List */}
+            <div className="mb-4">
+              <h4 className="text-lg font-semibold">Products:</h4>
+              <div className="border border-gray-300 rounded-lg p-4 shadow-sm">
+                <ul className="w-full divide-y">
+                  {order?.products?.length > 0 ? (
+                    order.products.map((product) => (
+                      <li
+                        key={product.productId}
+                        className="flex justify-between p-2"
+                      >
+                        <span className="font-semibold text-gray-800">
+                          {product.name || "Unknown Product"}
+                        </span>
+                        <span className="text-gray-600">
+                          {product.price || 0}
+                        </span>
+                        <span className="text-gray-600">
+                          x {product.quantity || 1}
+                        </span>
+                        <span className="font-semibold text-gray-800">
+                          = Rs. {(product.price || 0) * (product.quantity || 1)}
+                        </span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="p-4 text-gray-500 text-center">
+                      No products found
+                    </li>
+                  )}
+                </ul>
+
+                {/* Total Price at Bottom */}
+                <div className="mt-4 text-right font-bold text-lg">
+                  Total Price: Rs. {order.totalPrice || 0}
+                </div>
+              </div>
+            </div>
+
+            {/* Make Payment Button */}
+            {order.status === "Pending" && !paymentVerified[order._id] && (
               <button
                 className="w-full py-3 bg-green-500 text-white text-lg font-semibold rounded-lg hover:bg-green-600 transition"
                 onClick={() => {
@@ -161,7 +219,7 @@ const Order = () => {
         ))
       )}
 
-      {showModal && (
+      {showModal && selectedOrder && (
         <div className="fixed inset-0 flex justify-center items-center bg-gray-500 bg-opacity-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-1/3">
             <h2 className="text-xl font-semibold mb-4">

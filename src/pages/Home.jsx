@@ -4,6 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import instance from "../service/instance";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
+import ReactStars from "react-stars"; // Importing ReactStars for ratings
+
 const Home = () => {
   const navigate = useNavigate();
   const { user } = useSelector(selectUser);
@@ -15,8 +17,8 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await instance.get("/getproduct"); // Correct API endpoint
-        setData(response.data); // Update state with the response data
+        const response = await instance.get("/getproduct"); // Fetch products
+        setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
         setError("Failed to load products.");
@@ -30,14 +32,12 @@ const Home = () => {
 
   const handleCart = async (id) => {
     try {
-      await instance.post("/addcart", { productId: id }); // Correct API endpoint
+      await instance.post("/addcart", { productId: id });
       toast.success("Product added to cart successfully!");
     } catch (error) {
       console.error("Error adding to cart:", error);
     }
   };
-
-
 
   return (
     <div className="bg-gray-100 min-h-screen py-10 px-4 relative">
@@ -77,7 +77,7 @@ const Home = () => {
               {data.products.map((product, index) => (
                 <div
                   key={index}
-                  className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300"
+                  className="bg-white shadow-lg rounded-lg overflow-hidden transform hover:scale-105 transition-transform duration-300 p-4"
                 >
                   <img
                     src={product.image}
@@ -92,7 +92,27 @@ const Home = () => {
                     <p className="text-gray-500 mt-2 text-sm">
                       {product.description}
                     </p>
+
+                    {/* Display Star Rating */}
+                    {product.rating !== undefined ? (
+                      <div className="mt-2 flex flex-col items-center">
+                        <ReactStars
+                          count={5}
+                          value={product.rating}
+                          size={24}
+                          edit={false} // Prevents user from changing the rating
+                          color2={"#ffd700"}
+                        />
+                        <p className="text-gray-500 text-sm">
+                          ({product.rating.toFixed(1)} / 5)
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-gray-500 text-sm">No rating yet</p>
+                    )}
                   </div>
+
+                  {/* Buttons Section */}
                   <div className="p-2 border-t flex justify-evenly">
                     <button
                       onClick={() => navigate(`/product/${product._id}`)}
@@ -100,12 +120,16 @@ const Home = () => {
                     >
                       View Details
                     </button>
-                    <button
-                      onClick={() => handleCart(product._id)}
-                      className="w-auto bg-blue-500 text-white py-2 px-3 rounded-lg hover:bg-blue-600 transition duration-200 text-center"
-                    >
-                      Add to Cart
-                    </button>
+
+                    {/* Hide "Add to Cart" for the seller */}
+                    {user && product.seller !== user.user._id && (
+                      <button
+                        onClick={() => handleCart(product._id)}
+                        className="w-auto bg-blue-500 text-white py-2 px-3 rounded-lg hover:bg-blue-600 transition duration-200 text-center"
+                      >
+                        Add to Cart
+                      </button>
+                    )}
                   </div>
                 </div>
               ))}
