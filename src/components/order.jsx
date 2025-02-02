@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import instance from "../service/instance";
-import { selectUser } from "../Redux/Features/auth/userSlice";
 import axios from "axios";
+import { selectUser } from "../Redux/Features/auth/userSlice";
+import { toast } from "react-toastify";
 
 const Order = () => {
   const { user } = useSelector(selectUser);
@@ -15,6 +16,7 @@ const Order = () => {
   const [name, setName] = useState("");
   const [address, setAddress] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
+
 
   useEffect(() => {
     const fetchOrders = async () => {
@@ -49,17 +51,16 @@ const Order = () => {
 
   const handlePaymentSubmit = async () => {
     try {
-      const token = "67951c33c44914da47fd0611";
-      console.log(token)
-      const { data } = await axios.post(
-        "http://localhost:3000/auth/createrazorpayorder",
+       const { data } = await axios.post(
+    "http://localhost:3000/auth/createrazorpayorder",
         {
-          amount: 56378, // Amount in paisa (563.78 INR)
+          amount: 56378,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`, // Send token in request
+            "Content-Type": "application/json",
           },
+          credentials: "include",
         }
       );
       console.log("Razorpay Order Created:", data);
@@ -69,7 +70,7 @@ const Order = () => {
         currency: "INR",
         order_id: data.orderId,
         handler: async function (response) {
-          console.log("Payment Success:", response);
+          toast.success("Payment Success:", response);
           try {
             const verifyRes = await axios.post(
               "http://localhost:3000/auth/verify-payment",
@@ -80,21 +81,19 @@ const Order = () => {
               },
               {
                 headers: {
-                  Authorization: `Bearer ${"67951c33c44914da47fd0611"}`, // Send token in request
+                  "Content-Type": "application/json",
                 },
+                withCredentials: true,
               }
             );
             console.log("Payment Verified:", verifyRes.data);
-            alert("Payment Successful!");
+            toast.success("Payment Successful!");
           } catch (error) {
             console.error("Payment verification failed:", error);
             alert("Payment verification failed! Please try again.");
           }
         },
-        prefill: {
-          name: "Arun",
-          email: "mobiledoctorsdm@gmail.com",
-        },
+       
         theme: {
           color: "#3399cc",
         },

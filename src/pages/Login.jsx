@@ -5,6 +5,12 @@ import instance from '../service/instance';
 import { useNavigate } from 'react-router-dom';
 const login = () => {
 
+
+
+
+
+
+  
   const email = useSelector(selectEmail);
   const password = useSelector(selectPassword); 
 
@@ -18,13 +24,15 @@ const navigate = useNavigate();
         email,
         password,
       });
+      
+      
       if (response.status === 200) {
+
         toast.success('Logged in successfully');
         // clear the form
         dispatch(setEmail(''));
         dispatch(setPassword(''));
-        // save the token in the local storage
-        localStorage.setItem('token', response.data.token);
+       
          
         navigate('/');
         window.location.reload();
