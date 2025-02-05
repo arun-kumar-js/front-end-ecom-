@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+
 import App from "./App";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -14,6 +14,7 @@ import Changepassword from "./pages/changePassword";
 import ProductDetails from "./components/ProductDetails";
 import Order from "./components/order";
 import DashBoard from "./components/DashBoard";
+import { createBrowserRouter } from "react-router-dom";  // Keep only this one
 //check
 const routes = [
   {
