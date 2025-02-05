@@ -3,7 +3,7 @@ import App from "./App";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Home from "./pages/Home";
-import Cart from "./pages/Cart"
+import Cart from "./pages/cart.jsx"
 import authLoader from "./unit/authLoader";
 import Logout from "./pages/Logout";
 import Profile from "./pages/UserProfile";
@@ -14,7 +14,7 @@ import Changepassword from "./pages/changePassword";
 import ProductDetails from "./components/ProductDetails";
 import Order from "./components/order";
 import DashBoard from "./components/DashBoard";
-
+//check
 const routes = [
   {
     path: "/",
