@@ -16,7 +16,7 @@ import Order from "./components/order";
 import DashBoard from "./components/DashBoard";
 import { createBrowserRouter } from "react-router-dom";  // Keep only this one
 //check
-const routes = [
+const routes = createBrowserRouter[
   {
     path: "/",
     element: <App />,
