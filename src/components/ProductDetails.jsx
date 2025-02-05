@@ -4,19 +4,21 @@ import { useSelector } from "react-redux";
 import { selectUser } from "../Redux/Features/auth/userSlice";
 import instance from "../service/instance";
 import { toast } from "react-toastify";
-import ReactStars from "react-stars";
+import ReactStarRatings from "react-star-ratings"; // Import the star rating component
 
 const ProductDetails = () => {
   const { id } = useParams(); // Get product ID from the route
   const navigate = useNavigate();
   const { user } = useSelector(selectUser);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
+  const [rating, setRating] = useState(0); // Add state for rating
 
+  // Fetch product details
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -28,31 +30,76 @@ const ProductDetails = () => {
       } finally {
         setLoading(false);
       }
+      console
     };
 
     fetchProduct();
   }, [id]);
 
   const handleReviewSubmit = async () => {
-    if (rating === 0 || review.trim() === "") {
-      toast.error("Please provide a rating and review.");
+    if (review.trim() === "") {
+      toast.error("Please provide a review.");
+      return;
+    }
+    if (rating === 0) {
+      toast.error("Please provide a rating.");
       return;
     }
 
+    setIsSubmitting(true);
     try {
-      await instance.post("/product/review", {
-        productId: id,
-        rating,
-        review,
-      });
+      await instance.post(
+        "/product/review",
+        {
+          productId: id,
+          review,
+          rating, // Send rating along with the review
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${user.token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
       toast.success("Review submitted successfully!");
-      setRating(0);
       setReview("");
+      setRating(0); // Reset the rating after submission
     } catch (error) {
-      console.error("Error submitting review:", error);
-      toast.error("Failed to submit review.");
+      if (error.response?.status === 404) {
+        toast.error("Product not found.");
+      } else if (error.response?.status === 401) {
+        toast.error("Unauthorized. Please log in to submit a review.");
+      } else {
+        console.error("Error submitting review:", error);
+        toast.error("Failed to submit review. Please try again.");
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
+  //get review from dataabse
+const [reviews, setReviews] = useState([]);
+//const [error, setError] = useState(null); // Add error state
+
+useEffect(() => {
+  const fetchReviews = async () => {
+    try {
+      const response = await instance.get(`/product/reviews/${id}`); // Must match backend route
+      setReviews(response.data);
+    } catch (err) {
+      console.error("Error fetching reviews:", err);
+      setError("Failed to load reviews.");
+    }
+  };
+
+  fetchReviews();
+}, [id]);
+  console.log(reviews);
+
+
+  
 
   return (
     <div className="bg-gray-100 min-h-screen flex items-center justify-center py-10 px-4">
@@ -77,21 +124,53 @@ const ProductDetails = () => {
                 {product.description}
               </p>
             </div>
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold text-gray-800 text-center">
+                Reviews
+              </h2>
+              {reviews.length > 0 ? (
+                reviews.map((review) => (
+                  <div key={review._id} className="mt-4 p-4 border rounded-lg">
+                    <div className="flex items-center">
+                      <span className="text-2xl font-semibold pr-4"> 
+                        {review.userId?.name || "Anonymous"} {/* User's name */}
+                      </span>
+                      <ReactStarRatings
+                        rating={review.rating || 0} // Display star rating
+                        starRatedColor="green"
+                        numberOfStars={5}
+                        starDimension="20px"
+                        starSpacing="3px"
+                      />
+                    </div>
+                    <p className="mt-2 text-gray-600">{review.review}</p>{" "}
+                    {/* Review text */}
+                  </div>
+                ))
+              ) : (
+                <p className="text-center text-gray-600">No reviews yet.</p>
+              )}
+            </div>
 
-            {/* Review & Rating Section */}
+            {/* Review Section */}
             {user && product.seller !== user.user._id && (
               <div className="p-6 border-t">
                 <h2 className="text-xl font-semibold text-gray-800 text-center">
                   Leave a Review
                 </h2>
                 <div className="flex flex-col items-center mt-4">
-                  <ReactStars
-                    count={5}
-                    value={rating}
-                    size={30}
-                    color2={"#ffd700"}
-                    onChange={(newRating) => setRating(newRating)}
-                  />
+                  <div className="flex mb-4">
+                    {/* Star Rating */}
+                    <ReactStarRatings
+                      rating={rating} // Set the current rating
+                      starRatedColor="yellow" // Set the color of the rated stars
+                      changeRating={(newRating) => setRating(newRating)} // Update rating state when clicked
+                      numberOfStars={5} // Number of stars
+                      name="rating" // Name for the input (optional)
+                      starDimension="30px" // Set the size of the stars
+                      starSpacing="5px" // Spacing between stars
+                    />
+                  </div>
                   <textarea
                     className="mt-4 p-2 border rounded w-full"
                     rows="3"
@@ -101,9 +180,12 @@ const ProductDetails = () => {
                   ></textarea>
                   <button
                     onClick={handleReviewSubmit}
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
+                    className={`mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 ${
+                      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
+                    }`}
+                    disabled={isSubmitting}
                   >
-                    Submit Review
+                    {isSubmitting ? "Submitting..." : "Submit Review"}
                   </button>
                 </div>
               </div>

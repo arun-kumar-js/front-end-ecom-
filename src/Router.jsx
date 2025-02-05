@@ -14,6 +14,7 @@ import Changepassword from "./pages/changePassword";
 import ProductDetails from "./components/ProductDetails";
 import Order from "./components/order";
 import DashBoard from "./components/DashBoard";
+
 const routes = [
   {
     path: "/",
@@ -73,6 +74,7 @@ const routes = [
         path: "/dashboard",
         element: <DashBoard />,
       },
+    
     ],
     hydrateFallbackElement: <p>Loading... </p>,
   },

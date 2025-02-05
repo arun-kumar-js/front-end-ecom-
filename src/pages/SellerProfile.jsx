@@ -11,7 +11,7 @@ const Profile = () => {
   // Redirect to login if user is not available
   useEffect(() => {
     if (!user) {
-      navigate("/home", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [user, navigate]); // Runs when `user` or `navigate` changes
 
