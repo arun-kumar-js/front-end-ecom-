@@ -16,7 +16,7 @@ import Order from "./components/order";
 import DashBoard from "./components/DashBoard";
 import { createBrowserRouter } from "react-router-dom";  // Keep only this one
 //check
-const routes = createBrowserRouter[
+const routes = createBrowserRouter(
   {
     path: "/",
     element: <App />,
@@ -79,7 +79,7 @@ const routes = createBrowserRouter[
     ],
     hydrateFallbackElement: <p>Loading... </p>,
   },
-];
+);
 
 
   
