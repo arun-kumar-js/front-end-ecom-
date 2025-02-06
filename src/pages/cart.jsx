@@ -143,8 +143,7 @@ const Cart = () => {
 
   const handlePaymentSubmit = async () => {
     try {
-      const { data } = await axios.post(
-        "http://localhost:3000/auth/createrazorpayorder",
+      const { data } = await instance.post("/createrazorpayorder"),
         { amount: totalPrice * 1 },
         {
           headers: { "Content-Type": "application/json" },
@@ -163,8 +162,7 @@ const Cart = () => {
           handler: async function (response) {
             toast.success("Payment Success");
             try {
-              const verifyRes = await axios.post(
-                "http://localhost:3000/auth/verify-payment",
+              const verifyRes = await instance.post("/verify-payment"),
                 {
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_order_id: response.razorpay_order_id,
