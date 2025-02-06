@@ -5,7 +5,7 @@ const token = localStorage.getItem("jwtToken");  // Modify this based on where y
 
 const baseURL = [
   "http://localhost:3000/auth",
-  "https://project-be-lkrg.onrender.com/auth",
+  "https://project-be-lkrg.onrender.com/",
 ];
 
 const instance = axios.create({
