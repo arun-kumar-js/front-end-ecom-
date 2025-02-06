@@ -56,7 +56,6 @@ const SellerDashboard = () => {
         prevProducts.map((p) =>
           p._id === updatedProduct._id ? updatedProduct : p
         )
-        
       );
 
       alert(response.data.message || "Product updated successfully!");
@@ -67,8 +66,8 @@ const SellerDashboard = () => {
     }
   };
   // delete product by using product id
-const handleDeleteProduct = async (productId) => {
-  try {
+  const handleDeleteProduct = async (productId) => {
+    try {
       await instance.delete(`/seller/deleteProduct`, {
         data: { user, productId },
       });
@@ -76,7 +75,6 @@ const handleDeleteProduct = async (productId) => {
       setProducts((prevItems) =>
         prevItems.filter((item) => item._id !== productId)
       );
-    
     } catch (err) {
       console.error("Error removing item from cart:", err);
       setError("Failed to remove item.");

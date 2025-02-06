@@ -4,7 +4,7 @@ import instance from "../service/instance";
 import axios from "axios";
 import { selectUser } from "../Redux/Features/auth/userSlice";
 import { toast } from "react-toastify";
-
+import { Navigate } from "react-router";
 
 const Cart = () => {
   const { user } = useSelector(selectUser);
@@ -95,7 +95,6 @@ const Cart = () => {
             productId: item._id,
             quantity: item.quantity,
             productName: item.name,
-            
           })),
           totalPrice,
         },

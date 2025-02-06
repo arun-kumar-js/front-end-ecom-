@@ -5,7 +5,7 @@ import { selectUser } from "../Redux/Features/auth/userSlice";
 const Layout = ({ children }) => {
   const navigate = useNavigate();
   const { user } = useSelector(selectUser);
-    //console.log(user.user.role)
+  //console.log(user.user.role)
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -75,7 +75,6 @@ const Layout = ({ children }) => {
                 >
                   Upload Product
                 </Link>
-             
 
                 <Link
                   to="/profile"

@@ -33,9 +33,7 @@ const ChangePassword = () => {
         </h2>
         <form onSubmit={handleSubmit}>
           <div className="mb-4">
-            <label className="block text-sm font-mediummb-2">
-              Reset Code
-            </label>
+            <label className="block text-sm font-mediummb-2">Reset Code</label>
             <input
               type="text"
               id="code"

@@ -1,51 +1,43 @@
-import { toast } from 'react-toastify';
-import {selectEmail, selectPassword,setPassword,setEmail} from '../Redux/Features/auth/loginSlice';
-import { useDispatch, useSelector } from 'react-redux';
-import instance from '../service/instance';
-import { useNavigate } from 'react-router-dom';
+import { toast } from "react-toastify";
+import {
+  selectEmail,
+  selectPassword,
+  setPassword,
+  setEmail,
+} from "../Redux/Features/auth/loginSlice";
+import { useDispatch, useSelector } from "react-redux";
+import instance from "../service/instance";
+import { useNavigate } from "react-router-dom";
 const login = () => {
-
-
-
-
-
-
-  
   const email = useSelector(selectEmail);
-  const password = useSelector(selectPassword); 
+  const password = useSelector(selectPassword);
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleLogin = async (e) => {
     e.preventDefault();
-   
+
     try {
-      const response = await instance.post('/login', {
+      const response = await instance.post("/login", {
         email,
         password,
       });
-      
-      
+
       if (response.status === 200) {
-
-        toast.success('Logged in successfully');
+        toast.success("Logged in successfully");
         // clear the form
-        dispatch(setEmail(''));
-        dispatch(setPassword(''));
-       
-         
-        navigate('/');
-        window.location.reload();
+        dispatch(setEmail(""));
+        dispatch(setPassword(""));
 
-      }
-      else {
+        navigate("/");
+        window.location.reload();
+      } else {
         toast.error(response.data.message);
       }
     } catch (error) {
       toast.error(error.response.data.message);
     }
   };
-
 
   return (
     <div className="max-w-xs mx-auto mt-10 bg-white p-5 rounded-md shadow-md">

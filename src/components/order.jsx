@@ -13,7 +13,7 @@ const OrdersPage = () => {
   const userId = user?.user?._id;
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
- console.log("orderId",orderId)
+    console.log("orderId", orderId);
     try {
       await axios.delete(`http://localhost:3000/auth/order/${orderId}`, {
         withCredentials: true,

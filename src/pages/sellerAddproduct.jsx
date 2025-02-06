@@ -53,7 +53,6 @@ const SellerUploadProduct = () => {
         price: price,
         image: imagePreview,
       });
-      
 
       if (response.ok) {
         toast.success("Product uploaded successfully");
@@ -71,7 +70,6 @@ const SellerUploadProduct = () => {
         dispatch(setPrice(""));
         dispatch(setImage(null));
         setImagePreview(null);
-        
       }
     } catch (error) {
       console.error("Error uploading product:", error);

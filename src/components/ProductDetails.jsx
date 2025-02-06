@@ -1,209 +1,174 @@
-import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import axios from "axios";
 import { useSelector } from "react-redux";
 import { selectUser } from "../Redux/Features/auth/userSlice";
-import instance from "../service/instance";
-import { toast } from "react-toastify";
-import ReactStarRatings from "react-star-ratings"; // Import the star rating component
+import React from "react";
 
-const ProductDetails = () => {
-  const { id } = useParams(); // Get product ID from the route
-  const navigate = useNavigate();
-  const { user } = useSelector(selectUser);
-
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [product, setProduct] = useState(null);
+const OrdersPage = () => {
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [review, setReview] = useState("");
-  const [rating, setRating] = useState(0); // Add state for rating
+  const [error, setError] = useState("");
 
-  // Fetch product details
+  const { user } = useSelector(selectUser);
+  const userId = user?.user?._id;
+  const handleCancelOrder = async (orderId) => {
+    if (!window.confirm("Are you sure you want to cancel this order?")) return;
+    console.log("orderId", orderId);
+    try {
+      await axios.delete(`http://localhost:3000/auth/order/${orderId}`, {
+        withCredentials: true,
+      });
+
+      // Remove order from UI
+      setOrders((prevOrders) =>
+        prevOrders.filter((order) => order._id !== orderId)
+      );
+    } catch (error) {
+      console.error("Error deleting order:", error);
+      alert("Failed to cancel order. Please try again.");
+    }
+  };
+
   useEffect(() => {
-    const fetchProduct = async () => {
+    if (!userId) {
+      setError("User not authenticated");
+      setLoading(false);
+      return;
+    }
+
+    const fetchOrders = async () => {
       try {
-        const response = await instance.get(`/product/${id}`);
-        setProduct(response.data);
+        const response = await axios.get(
+          `http://localhost:3000/auth/getorder/${userId}`,
+          { withCredentials: true }
+        );
+
+        let orderData = response.data.orders || [];
+
+        // Fetch product details for each product in each order
+        const updatedOrders = await Promise.all(
+          orderData.map(async (order) => {
+            const productsWithDetails = await Promise.all(
+              order.products.map(async (product) => {
+                try {
+                  const productRes = await axios.get(
+                    `http://localhost:3000/auth/product/${product.productId}`,
+                    { withCredentials: true }
+                  );
+                  return { ...product, name: productRes.data.name }; // Add product name
+                } catch (err) {
+                  console.error("Error fetching product:", err);
+                  return { ...product, name: "Unknown Product" }; // Fallback name
+                }
+              })
+            );
+
+            return { ...order, products: productsWithDetails };
+          })
+        );
+
+        setOrders(updatedOrders);
       } catch (err) {
-        console.error("Error fetching product:", err);
-        setError("Failed to load product details.");
+        setError(err.response?.data?.message || "Failed to fetch orders");
       } finally {
         setLoading(false);
       }
-      console
     };
 
-    fetchProduct();
-  }, [id]);
+    fetchOrders();
+  }, [userId]);
 
-  const handleReviewSubmit = async () => {
-    if (review.trim() === "") {
-      toast.error("Please provide a review.");
-      return;
-    }
-    if (rating === 0) {
-      toast.error("Please provide a rating.");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await instance.post(
-        "/product/review",
-        {
-          productId: id,
-          review,
-          rating, // Send rating along with the review
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${user.token}`,
-          },
-          withCredentials: true,
-        }
-      );
-
-      toast.success("Review submitted successfully!");
-      setReview("");
-      setRating(0); // Reset the rating after submission
-    } catch (error) {
-      if (error.response?.status === 404) {
-        toast.error("Product not found.");
-      } else if (error.response?.status === 401) {
-        toast.error("Unauthorized. Please log in to submit a review.");
-      } else {
-        console.error("Error submitting review:", error);
-        toast.error("Failed to submit review. Please try again.");
-      }
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-  //get review from dataabse
-const [reviews, setReviews] = useState([]);
-//const [error, setError] = useState(null); // Add error state
-
-useEffect(() => {
-  const fetchReviews = async () => {
-    try {
-      const response = await instance.get(`/product/reviews/${id}`); // Must match backend route
-      setReviews(response.data);
-    } catch (err) {
-      console.error("Error fetching reviews:", err);
-      setError("Failed to load reviews.");
-    }
-  };
-
-  fetchReviews();
-}, [id]);
-  console.log(reviews);
-
-
-  
+  if (loading)
+    return (
+      <p className="text-center text-gray-600 text-lg">Loading orders...</p>
+    );
+  if (error) return <p className="text-center text-red-500 text-lg">{error}</p>;
 
   return (
-    <div className="bg-gray-100 min-h-screen flex items-center justify-center py-10 px-4">
-      <div className="container mx-auto">
-        {loading && <p className="text-center text-lg">Loading product...</p>}
-        {error && <p className="text-center text-red-500">{error}</p>}
-        {product && (
-          <div className="max-w-3xl mx-auto bg-white shadow-lg rounded-lg overflow-hidden flex-center">
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-auto h-64 object-cover mx-auto pt-5"
-            />
-            <div className="p-6">
-              <h1 className="text-3xl font-bold text-gray-800 text-center">
-                {product.name}
-              </h1>
-              <p className="text-gray-700 text-lg mt-4 text-center">
-                Rs: {product.price}
-              </p>
-              <p className="text-gray-600 mt-2 text-center">
-                {product.description}
-              </p>
-            </div>
-            <div className="mt-6">
-              <h2 className="text-xl font-semibold text-gray-800 text-center">
-                Reviews
-              </h2>
-              {reviews.length > 0 ? (
-                reviews.map((review) => (
-                  <div key={review._id} className="mt-4 p-4 border rounded-lg">
-                    <div className="flex items-center">
-                      <span className="text-2xl font-semibold pr-4"> 
-                        {review.userId?.name || "Anonymous"} {/* User's name */}
-                      </span>
-                      <ReactStarRatings
-                        rating={review.rating || 0} // Display star rating
-                        starRatedColor="green"
-                        numberOfStars={5}
-                        starDimension="20px"
-                        starSpacing="3px"
-                      />
-                    </div>
-                    <p className="mt-2 text-gray-600">{review.review}</p>{" "}
-                    {/* Review text */}
-                  </div>
-                ))
-              ) : (
-                <p className="text-center text-gray-600">No reviews yet.</p>
-              )}
-            </div>
+    <div className="max-w-5xl mx-auto p-6">
+      <h2 className="text-2xl font-semibold text-gray-800 mb-4">Your Orders</h2>
 
-            {/* Review Section */}
-            {user && product.seller !== user.user._id && (
-              <div className="p-6 border-t">
-                <h2 className="text-xl font-semibold text-gray-800 text-center">
-                  Leave a Review
-                </h2>
-                <div className="flex flex-col items-center mt-4">
-                  <div className="flex mb-4">
-                    {/* Star Rating */}
-                    <ReactStarRatings
-                      rating={rating} // Set the current rating
-                      starRatedColor="yellow" // Set the color of the rated stars
-                      changeRating={(newRating) => setRating(newRating)} // Update rating state when clicked
-                      numberOfStars={5} // Number of stars
-                      name="rating" // Name for the input (optional)
-                      starDimension="30px" // Set the size of the stars
-                      starSpacing="5px" // Spacing between stars
-                    />
-                  </div>
-                  <textarea
-                    className="mt-4 p-2 border rounded w-full"
-                    rows="3"
-                    placeholder="Write your review..."
-                    value={review}
-                    onChange={(e) => setReview(e.target.value)}
-                  ></textarea>
-                  <button
-                    onClick={handleReviewSubmit}
-                    className={`mt-4 bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200 ${
-                      isSubmitting ? "opacity-50 cursor-not-allowed" : ""
-                    }`}
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? "Submitting..." : "Submit Review"}
-                  </button>
-                </div>
+      {orders.length === 0 ? (
+        <p className="text-center text-gray-600 text-lg">No orders found</p>
+      ) : (
+        <div className="overflow-x-auto">
+          {orders.map((order, index) => (
+            <div
+              key={order._id}
+              className="mb-8 border rounded-lg shadow-md p-4 bg-white"
+            >
+              <h3 className="text-xl font-semibold text-gray-700 mb-3">
+                Order ID: {order._id}
+              </h3>
+
+              <table className="w-full border-collapse">
+                <thead className="bg-gray-800 text-white">
+                  <tr>
+                    <th className="p-4 text-left">Product ID</th>
+                    <th className="p-4 text-left">Product Name</th>
+                    <th className="p-4 text-left">Quantity</th>
+                    <th className="p-4 text-left">Total Price</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {order.products.length > 0 ? (
+                    order.products.map((product, pIndex) => (
+                      <tr
+                        key={product._id}
+                        className={
+                          pIndex % 2 === 0 ? "bg-gray-100" : "bg-white"
+                        }
+                      >
+                        <td className="p-4">{product.productId}</td>
+                        <td className="p-4">{product.name}</td>
+                        <td className="p-4">{product.quantity}</td>
+                        <td className="p-4 font-semibold text-green-600">
+                          {pIndex === 0 ? `₹${order.totalPrice}` : ""}
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td className="p-4 text-center" colSpan="4">
+                        No Products
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+
+              {/* Bottom section for User Name, Address, Phone, and Order Status */}
+              <div className="mt-4 p-4 border-t bg-gray-50 rounded-b-lg">
+                <p className="text-lg font-medium text-gray-700">
+                  <span className="font-semibold">Name:</span> {order.name}
+                </p>
+                <p className="text-lg text-gray-700">
+                  <span className="font-semibold">Address:</span>{" "}
+                  {order.address}
+                </p>
+                <p className="text-lg text-gray-700">
+                  <span className="font-semibold">Phone:</span>{" "}
+                  {order.phoneNumber}
+                </p>
+                <p className="text-lg font-semibold text-blue-600">
+                  <span className="font-semibold text-gray-700">
+                    Order Status:
+                  </span>{" "}
+                  {order.status}
+                </p>
+                <button
+                  onClick={() => handleCancelOrder(order._id)}
+                  className="mt-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-700"
+                >
+                  Cancel Order
+                </button>
               </div>
-            )}
-
-            <div className="p-6 border-t text-center">
-              <button
-                onClick={() => navigate(-1)}
-                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-200"
-              >
-                Back
-              </button>
             </div>
-          </div>
-        )}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
 
-export default ProductDetails;
+export default OrdersPage;
