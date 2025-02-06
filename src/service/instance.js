@@ -1,6 +1,13 @@
 import axios from "axios";
-import e from "cors";
-const baseURL = "http://localhost:3000/auth";
+
+// Assuming JWT token is stored in localStorage (you can modify this as per your setup)
+const token = localStorage.getItem("jwtToken");  // Modify this based on where you store your JWT token
+
+const baseURL = [
+  "http://localhost:3000/auth",
+  "https://project-be-lkrg.onrender.com/auth",
+];
+
 const instance = axios.create({
   baseURL: baseURL,
   timeout: 30000,
