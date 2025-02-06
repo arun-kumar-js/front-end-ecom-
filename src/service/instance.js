@@ -1,6 +1,6 @@
 import axios from "axios";
 import e from "cors";
-const baseURL = "http://localhost:3000/auth";
+const baseURL = "https://project-be-lkrg.onrender.com/auth";
 const instance = axios.create({
     baseURL: baseURL,
     timeout: 30000,
