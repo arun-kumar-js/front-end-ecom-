@@ -12,6 +12,7 @@ const SellerDashboard = () => {
   const [error, setError] = useState(null);
   const [editProduct, setEditProduct] = useState(null);
   const [updatedProduct, setUpdatedProduct] = useState({});
+ 
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -22,7 +23,13 @@ const SellerDashboard = () => {
       }
       try {
         const response = await axios.get(
-          `http://localhost:3000/auth/getproduct?sellerId=${sellerId}`
+          `http://localhost:3000/auth/getproduct?sellerId=${sellerId}`,
+          { withCredentials: true },
+          {
+            headers: {
+              Authorization: `Bearer ${user.token}`,
+            }
+          }
         );
         setProducts(response.data.products || []);
       } catch (err) {
@@ -32,6 +39,7 @@ const SellerDashboard = () => {
         setLoading(false);
       }
     };
+    //console.log(user.token);
     fetchProducts();
   }, [sellerId]);
 
@@ -44,12 +52,26 @@ const SellerDashboard = () => {
     setEditProduct(null);
   };
 
+  
   const handleUpdateProduct = async () => {
+    const userToken = localStorage.token
+
+    if (!userToken) {
+      console.error("No token found!");
+      return;
+    }
+
     try {
       const response = await axios.post(
         "http://localhost:3000/auth/seller/updateProduct",
-        updatedProduct,
-        { withCredentials: true }
+        { ...updatedProduct, productId: updatedProduct._id },
+        {
+          headers: {
+            Authorization: `Bearer ${userToken}`, // Use the token from localStorage
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        }
       );
 
       setProducts((prevProducts) =>
@@ -59,14 +81,19 @@ const SellerDashboard = () => {
       );
 
       alert(response.data.message || "Product updated successfully!");
-
       handleCloseModal();
     } catch (error) {
-      console.error("Error updating product:", error);
+      console.error("Error updating product:", error.response?.data || error);
     }
   };
   // delete product by using product id
   const handleDeleteProduct = async (productId) => {
+    const confirmDelete = window.confirm(
+      "Are you sure you want to delete this product?"
+    );
+
+    if (!confirmDelete) return; // If the user cancels, exit the function
+
     try {
       await instance.delete(`/seller/deleteProduct`, {
         data: { user, productId },
@@ -75,6 +102,8 @@ const SellerDashboard = () => {
       setProducts((prevItems) =>
         prevItems.filter((item) => item._id !== productId)
       );
+
+      alert("Product deleted successfully!");
     } catch (err) {
       console.error("Error removing item from cart:", err);
       setError("Failed to remove item.");

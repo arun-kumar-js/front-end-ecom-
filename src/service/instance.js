@@ -3,7 +3,7 @@ import axios from "axios";
 const baseURL =
   process.env.NODE_ENV === "production"
     ? "https://project-be-qvrk.onrender.com/auth"
-    : "http://localhost:3000";
+    : "http://localhost:3000/auth";
 
 const instance = axios.create({
   baseURL,

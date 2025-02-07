@@ -25,6 +25,7 @@ const login = () => {
 
       if (response.status === 200) {
         toast.success("Logged in successfully");
+        // save the token in local storage
         localStorage.setItem("token",response.data.token)
         // clear the form
         dispatch(setEmail(""));

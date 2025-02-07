@@ -15,7 +15,7 @@ const Layout = ({ children }) => {
             <h1 className="text-2xl font-bold text-indigo-500">Eekart</h1>
             <Link
               to="/"
-              className="text-lg font-bold hover:underline text-red-500"
+              className="hover:underline bg-red-500 px-4 py-2 rounded-md text-sm font-medium hover:bg-green-600 transition duration-200"
             >
               Home
             </Link>

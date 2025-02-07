@@ -3,6 +3,7 @@ import axios from "axios";
 import { useSelector } from "react-redux";
 import { selectUser } from "../Redux/Features/auth/userSlice";
 import React from "react";
+import instance from "../service/instance";
 
 const OrdersPage = () => {
   const [orders, setOrders] = useState([]);
@@ -11,14 +12,18 @@ const OrdersPage = () => {
 
   const { user } = useSelector(selectUser);
   const userId = user?.user?._id;
+
   const handleCancelOrder = async (orderId) => {
     if (!window.confirm("Are you sure you want to cancel this order?")) return;
     console.log("orderId", orderId);
     try {
-      await axios.delete(`http://localhost:3000/auth/order/${orderId}`, {
-        withCredentials: true,
+      await instance.delete(`/order/${orderId}`, { 
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        withCredentials: true, // Ensure cookies are included
       });
-
+// Remove order from UI
       // Remove order from UI
       setOrders((prevOrders) =>
         prevOrders.filter((order) => order._id !== orderId)
@@ -40,7 +45,12 @@ const OrdersPage = () => {
       try {
         const response = await axios.get(
           `http://localhost:3000/auth/getorder/${userId}`,
-          { withCredentials: true }
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+            withCredentials: true, // Ensure cookies are included
+          }
         );
 
         let orderData = response.data.orders || [];
@@ -53,7 +63,14 @@ const OrdersPage = () => {
                 try {
                   const productRes = await axios.get(
                     `http://localhost:3000/auth/product/${product.productId}`,
-                    { withCredentials: true }
+                    {
+                      headers: {
+                        Authorization: `Bearer ${localStorage.getItem(
+                          "token"
+                        )}`,
+                      },
+                      withCredentials: true, // Ensure cookies are included
+                    }
                   );
                   return { ...product, name: productRes.data.name }; // Add product name
                 } catch (err) {

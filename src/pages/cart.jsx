@@ -147,7 +147,7 @@ const Cart = () => {
         { amount: totalPrice * 1 },
         {
           headers: { "Content-Type": "application/json" },
-          credentials: "include",
+          withCredentials: true, // Send cookies along with the request
         }
       );
 
@@ -162,15 +162,32 @@ const Cart = () => {
           handler: async function (response) {
             toast.success("Payment Success");
             try {
+<<<<<<< HEAD
               const verifyRes = await instance.post("/verify-payment"),
+=======
+              // Make sure token is available
+              const token = localStorage.getItem("token");
+              if (!token) {
+                console.error("Token not found in localStorage");
+                toast.error("Authorization failed!");
+                reject(false);
+                return;
+              }
+
+              const verifyRes = await axios.post(
+                "http://localhost:3000/auth/verify-payment",
+>>>>>>> final commit
                 {
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_order_id: response.razorpay_order_id,
                   razorpay_signature: response.razorpay_signature,
                 },
                 {
-                  headers: { "Content-Type": "application/json" },
-                  withCredentials: true,
+                  headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`, // Attach JWT token for authorization
+                  },
+                  withCredentials: true, // Send cookies along with the request
                 }
               );
 

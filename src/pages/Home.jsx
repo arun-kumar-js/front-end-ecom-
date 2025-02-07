@@ -17,7 +17,9 @@ const Home = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await instance.get("/getproduct"); // Fetch products
+        const response = await instance.get("/getproduct", {
+          withCredentials: true,
+        }); // Fetch products
         setData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
@@ -32,7 +34,14 @@ const Home = () => {
 
   const handleCart = async (id) => {
     try {
-      await instance.post("/addcart", { productId: id });
+      await instance.post("/addcart", { productId: id },
+        { withCredentials: true },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
       toast.success("Product added to cart successfully!");
     } catch (error) {
       console.error("Error adding to cart:", error);
