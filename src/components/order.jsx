@@ -43,8 +43,7 @@ const OrdersPage = () => {
 
     const fetchOrders = async () => {
       try {
-        const response = await axios.get(
-          `http://localhost:3000/auth/getorder/${userId}`,
+        const response = await instance.get( `/getorder/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -61,8 +60,8 @@ const OrdersPage = () => {
             const productsWithDetails = await Promise.all(
               order.products.map(async (product) => {
                 try {
-                  const productRes = await axios.get(
-                    `http://localhost:3000/auth/product/${product.productId}`,
+                  const productRes = await instance.get(
+                    `/product/${product.productId}`,
                     {
                       headers: {
                         Authorization: `Bearer ${localStorage.getItem(
