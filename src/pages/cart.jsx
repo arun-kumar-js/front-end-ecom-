@@ -143,11 +143,23 @@ const Cart = () => {
 
   const handlePaymentSubmit = async () => {
     try {
-      const { data } = await instance.post("/createrazorpayorder"),
-        { amount: totalPrice * 1 },
+      const token = localStorage.getItem("token"); // Retrieve the token at the start
+
+      if (!token) {
+        console.error("Token not found in localStorage");
+        toast.error("Authorization failed! Please log in again.");
+        return false; // Exit the function if token is missing
+      }
+
+      const { data } = await instance.post(
+        "/createrazorpayorder",
+        { amount: totalPrice }, // ✅ Fix incorrect request format
         {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true, // Send cookies along with the request
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`, // ✅ Ensure token is sent
+          },
+          withCredentials: true,
         }
       );
 
@@ -155,28 +167,16 @@ const Cart = () => {
 
       return new Promise((resolve, reject) => {
         const options = {
-          key: "rzp_test_l9AEPH2OgMir0D", // Replace with your Razorpay key
+          key: "rzp_test_l9AEPH2OgMir0D",
           amount: data.amount,
           currency: "INR",
           order_id: data.orderId,
           handler: async function (response) {
             toast.success("Payment Success");
-            try {
-<<<<<<< HEAD
-              const verifyRes = await instance.post("/verify-payment"),
-=======
-              // Make sure token is available
-              const token = localStorage.getItem("token");
-              if (!token) {
-                console.error("Token not found in localStorage");
-                toast.error("Authorization failed!");
-                reject(false);
-                return;
-              }
 
-              const verifyRes = await axios.post(
-                "http://localhost:3000/auth/verify-payment",
->>>>>>> final commit
+            try {
+              const verifyRes = await instance.post(
+                "/verify-payment",
                 {
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_order_id: response.razorpay_order_id,
@@ -185,19 +185,22 @@ const Cart = () => {
                 {
                   headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`, // Attach JWT token for authorization
+                    Authorization: `Bearer ${token}`, // ✅ Ensure token is included
                   },
-                  withCredentials: true, // Send cookies along with the request
+                  withCredentials: true,
                 }
               );
 
               console.log("Payment Verified:", verifyRes.data);
-              toast.success("Payment Successful!");
-              resolve(true); // ✅ Payment succeeded
+              toast.success("Payment Verified!");
+              resolve(true);
             } catch (error) {
-              console.error("Payment verification failed:", error);
+              console.error(
+                "Payment verification failed:",
+                error.response?.data || error
+              );
               toast.error("Payment verification failed!");
-              reject(false); // ❌ Payment verification failed
+              reject(false);
             }
           },
           theme: { color: "#3399cc" },
@@ -209,16 +212,15 @@ const Cart = () => {
         } else {
           console.error("Razorpay SDK is not loaded!");
           alert("Payment failed! Please refresh and try again.");
-          reject(false); // ❌ Razorpay not loaded
+          reject(false);
         }
       });
     } catch (error) {
       console.error("Payment initiation failed:", error);
       alert("Payment failed! Please try again.");
-      return false; // ❌ Payment request failed
+      return false;
     }
   };
-
   return (
     <div className="container mx-auto p-6">
       <h2 className="text-3xl font-semibold text-gray-800 text-center mb-6">
