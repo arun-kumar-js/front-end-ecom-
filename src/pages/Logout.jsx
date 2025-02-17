@@ -18,6 +18,9 @@ const Logout = () => {
 
         // Clear the user from Redux
         dispatch(clearUser());
+        localStorage.removeItem("token"); // Remove JWT token
+        localStorage.removeItem("user"); // (Optional) Remove stored user data
+        sessionStorage.clear();
 
         // Redirect to home page
         navigate("/", { replace: true });

@@ -3,9 +3,11 @@ import {
   selectName,
   selectEmail,
   selectPassword,
+  selectRole,
   setEmail,
   setName,
   setPassword,
+  setRole,
 } from "../Redux/Features/auth/RegisterSlice";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router";
@@ -15,13 +17,14 @@ const Register = () => {
   const name = useSelector(selectName);
   const email = useSelector(selectEmail);
   const password = useSelector(selectPassword);
+  const role = useSelector(selectRole); 
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleRegister = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await authServices.register({ name, email, password });
+      const response = await authServices.register({ name, email, password,role});
       if (response.status === 201) {
         toast.success("registerd successfully");
         // clear the form
@@ -63,6 +66,17 @@ const Register = () => {
           value={password}
           onChange={(e) => dispatch(setPassword(e.target.value))}
         />
+        <select
+          name="role"
+          className="p-2 border border-gray-300 rounded-md"
+          onChange={(e) => dispatch(setRole(e.target.value))}
+        >
+          <option value="">Select Role</option>
+          <option value="seller">Seller</option>
+          <option value="user">User</option>
+          onClick={(e) => dispatch(setRole(e.target.value))}
+
+        </select>
         <button className="bg-blue-500 text-white p-2 rounded-md">
           Register
         </button>
