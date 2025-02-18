@@ -5,6 +5,7 @@ import instance from "../service/instance";
 import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import ReactStars from "react-stars";
+import { ClipLoader } from "react-spinners"; // Import spinner
 
 const Home = () => {
   const navigate = useNavigate();
@@ -14,7 +15,7 @@ const Home = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6; // Adjust this based on your preference
+  const itemsPerPage = 6; // Adjust items per page
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,7 +37,7 @@ const Home = () => {
     };
 
     fetchData();
-  }, [currentPage]); // Fetch data when `currentPage` changes
+  }, [currentPage]);
 
   const handleCart = async (id) => {
     try {
@@ -86,7 +87,9 @@ const Home = () => {
         {/* Products Section */}
         <div className="mt-8">
           {loading && (
-            <p className="text-lg text-gray-700 text-center">Loading data...</p>
+            <div className="flex justify-center items-center h-40">
+              <ClipLoader color="#2563EB" size={50} />
+            </div>
           )}
           {error && <p className="text-lg text-red-500 text-center">{error}</p>}
           {data && !loading && (
